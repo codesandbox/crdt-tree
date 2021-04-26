@@ -4,6 +4,9 @@
   "main": "index.js",
   "author": "Matan Kushner <hello@matchai.dev>",
   "license": "MIT",
+  "scripts": {
+    "test": "jest"
+  },
   "devDependencies": {
     "@types/jest": "^26.0.22",
     "jest": "^26.6.3",

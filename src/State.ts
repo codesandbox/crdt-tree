@@ -85,7 +85,7 @@ export class State {
     // newp, then the tree is returned unmodified, ie the operation
     // is ignored.
     // Similarly, the operation is also ignored if c == newp
-    if (op.id === op.parentId || this.tree.isAncestor(op.id, op.parentId)) {
+    if (op.id === op.parentId || this.tree.isAncestor(op.parentId, op.id)) {
       return { op, oldParent };
     }
 
