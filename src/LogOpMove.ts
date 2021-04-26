@@ -1,4 +1,4 @@
-// Implements `LogOpMove`, a log entry used by `State`
+// Implements `LogOpMove`, a log entry used by `State`.
 //
 // From the paper[1]:
 // ----

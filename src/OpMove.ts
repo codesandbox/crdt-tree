@@ -14,7 +14,7 @@
 // also designate as "trash" some node ID that does not exist
 // in the tree; then we can delete a node by moving it to be
 // a child of the trash.
-///
+//
 // Thus, we define one kind of operation: Move t p m c.  A move
 // operation is a 4-tuple consisting of a timestamp t of type 't,
 // a parent node ID p of type 'n, a metadata field m of type 'm,
@@ -49,14 +49,12 @@
 // ----
 // [1] https://martin.kleppmann.com/papers/move-op.pdf
 
-import { cuid } from "./Tree";
+import { Cuid } from "./Tree";
 import { Metadata } from "./TreeNode";
-// @ts-ignore
-import vectorclock from 'vectorclock';
 
 export interface OpMove {
+  id: Cuid;
   timestamp: number;
-  parentId: cuid;
   metadata: Metadata;
-  id: cuid;
+  parentId: Cuid;
 }

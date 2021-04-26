@@ -1,12 +1,16 @@
-import { cuid } from "./Tree";
+import { Cuid } from "./Tree";
 
 export interface Metadata {}
 
+/** A node that is stored in a `Tree` */
+// Logically, each `TreeNode` consists of a triple `(parent_id, metadata, child_id)`.
+// However, in this implementation, the `child_id` is stored as the
+// keys in `Tree.children`
 export class TreeNode {
-  parentId: cuid;
+  parentId: Cuid;
   metadata: Metadata;
 
-  constructor(parentId: cuid, metadata: Metadata) {
+  constructor(parentId: Cuid, metadata: Metadata) {
     this.parentId = parentId;
     this.metadata = metadata;
   }

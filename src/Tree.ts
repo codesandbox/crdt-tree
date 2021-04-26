@@ -1,8 +1,6 @@
-import { TreeNode } from "./TreeNode";
-
-// Implements `Tree`, a set of triples representing current tree structure.
+// Implements `Tree`, a map of nodes representing the current tree structure.
 //
-// Normally this `Tree` struct should not be instantiated directly.
+// Normally `Tree` should not be instantiated directly.
 // Instead instantiate `State` (lower-level) or `TreeReplica` (higher-level)
 // and invoke operations on them.
 //
@@ -23,15 +21,23 @@ import { TreeNode } from "./TreeNode";
 // ----
 // [1] https://martin.kleppmann.com/papers/move-op.pdf
 
-export type cuid = string;
+import { TreeNode } from "./TreeNode";
+
+export type Cuid = string & { __type: "cuid" };
 
 /** Create a new Tree instance */
 export class Tree {
-  nodes: Map<cuid, TreeNode> = new Map();
-  children: Map<cuid, Set<cuid>> = new Map();
+  /** Tree nodes indexed by id */
+  nodes: Map<Cuid, TreeNode> = new Map();
+  /** Parent id to child id index */
+  children: Map<Cuid, Set<Cuid>> = new Map();
 
-  /** Remove a node based on its ID */
-  remove(id: cuid): void {
+  get size(): number {
+    return this.nodes.size;
+  }
+
+  /** Remove a node based on its id */
+  remove(id: Cuid): void {
     const entry = this.nodes.get(id);
     if (!entry) return;
 
@@ -45,7 +51,7 @@ export class Tree {
   }
 
   /** Add a node to the tree */
-  add(id: cuid, node: TreeNode): void {
+  addNode(id: Cuid, node: TreeNode): void {
     let parent = this.children.get(node.parentId);
     if (!parent) {
       parent = new Set();
@@ -57,11 +63,11 @@ export class Tree {
   }
 
   /** Get a node by its id */
-  get(id: cuid): TreeNode | undefined {
+  get(id: Cuid): TreeNode | undefined {
     return this.nodes.get(id);
   }
 
-  // returns true if ancestor_id is an ancestor of child_id in tree.
+  /** Returns true if the given `ancestorId` is an ancestor of `id` in the tree */
   //
   // parent | child
   // --------------
@@ -78,11 +84,11 @@ export class Tree {
   //
   // is 2 ancestor of 8?  yes.
   // is 2 ancestor of 5?   no.
-  isAncestor(childId: cuid, ancestorId: cuid): boolean {
-    let targetId = childId;
+  isAncestor(id: Cuid, ancestorId: Cuid): boolean {
+    let targetId = id;
 
     let node;
-    while (node = this.get(targetId)) {
+    while ((node = this.get(targetId))) {
       if (node.parentId === ancestorId) return true;
       targetId = node.parentId;
     }
@@ -90,7 +96,16 @@ export class Tree {
     return false;
   }
 
-  numNodes(): number {
-    return this.nodes.size;
+  /** Print a tree node recursively */
+  printNode(id: Cuid, depth: number = 0) {
+    const node = this.get(id);
+    const line = `${id} ${node ? `${JSON.stringify(node.metadata)}` : ""}`;
+    const indentation = " ".repeat(depth * 2);
+    console.log(indentation + line);
+
+    let children = Array.from(this.children.get(id) ?? []);
+    for (let childId of children) {
+      this.printNode(childId, depth + 1);
+    }
   }
 }

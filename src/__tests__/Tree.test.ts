@@ -1,4 +1,5 @@
 import { State } from "../State";
+import { Cuid } from "../Tree";
 
 let id = 100;
 const newId = () => ++id;
@@ -9,32 +10,32 @@ test("isAncestor", () => {
   const state = new State();
 
   const ids = {
-    forest: String(newId()),
-    trash: String(newId()),
-    root: String(newId()),
-    home: String(newId()),
-    bob: String(newId()),
-    project: String(newId()),
+    forest: String(newId()) as Cuid,
+    trash: String(newId()) as Cuid,
+    root: String(newId()) as Cuid,
+    home: String(newId()) as Cuid,
+    bob: String(newId()) as Cuid,
+    project: String(newId()) as Cuid,
   };
 
   state.applyOp({
     timestamp: newTimestamp(),
     parentId: ids.root,
-    metadata: {},
+    metadata: { name: "root" },
     id: ids.home,
   });
 
   state.applyOp({
     timestamp: newTimestamp(),
     parentId: ids.home,
-    metadata: {},
+    metadata: { name: "home" },
     id: ids.bob,
   });
 
   state.applyOp({
     timestamp: newTimestamp(),
     parentId: ids.bob,
-    metadata: {},
+    metadata: { name: "bob" },
     id: ids.project,
   });
 
@@ -46,5 +47,6 @@ test("isAncestor", () => {
     (ids.bob, "project", ids.project),
   ];
 
-  console.log(state)
+  console.log(state);
+  state.tree.printNode(ids.root);
 });
