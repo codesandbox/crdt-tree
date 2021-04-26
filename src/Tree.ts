@@ -52,13 +52,13 @@ export class Tree {
 
   /** Add a node to the tree */
   addNode(id: Cuid, node: TreeNode): void {
-    let parent = this.children.get(node.parentId);
-    if (!parent) {
-      parent = new Set();
-      this.children.set(node.parentId, parent);
+    let childrenSet = this.children.get(node.parentId);
+    if (!childrenSet) {
+      childrenSet = new Set();
+      this.children.set(node.parentId, childrenSet);
     }
 
-    parent.add(id);
+    childrenSet.add(id);
     this.nodes.set(id, node);
   }
 

@@ -1,6 +1,6 @@
 import { Cuid } from "./Tree";
 
-export interface Metadata {}
+export type Metadata = string
 
 /** A node that is stored in a `Tree` */
 // Logically, each `TreeNode` consists of a triple `(parent_id, metadata, child_id)`.

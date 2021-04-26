@@ -1,52 +1,75 @@
-import { State } from "../State";
 import { Cuid } from "../Tree";
+import { TreeReplica } from "../TreeReplica";
 
-let id = 100;
-const newId = () => ++id;
-let timestamp = 0;
-const newTimestamp = () => ++timestamp;
+let id = 1;
+const newId = () => String(++id) as Cuid;
 
-test("isAncestor", () => {
-  const state = new State();
+test("concurrent moves converge to a common location", () => {
+  const r1 = new TreeReplica("a");
+  const r2 = new TreeReplica("b");
 
   const ids = {
-    forest: String(newId()) as Cuid,
-    trash: String(newId()) as Cuid,
-    root: String(newId()) as Cuid,
-    home: String(newId()) as Cuid,
-    bob: String(newId()) as Cuid,
-    project: String(newId()) as Cuid,
+    root: newId(),
+    a: newId(),
+    b: newId(),
+    c: newId(),
   };
 
-  state.applyOp({
-    timestamp: newTimestamp(),
-    parentId: ids.root,
-    metadata: { name: "root" },
-    id: ids.home,
-  });
+  const ops = r1.opMoves([
+    [ids.root, "root", "0" as Cuid],
+    [ids.a, "a", ids.root],
+    [ids.b, "b", ids.root],
+    [ids.c, "c", ids.root],
+  ]);
 
-  state.applyOp({
-    timestamp: newTimestamp(),
-    parentId: ids.home,
-    metadata: { name: "home" },
-    id: ids.bob,
-  });
+  r1.applyOps(ops);
+  r2.applyOps(ops);
 
-  state.applyOp({
-    timestamp: newTimestamp(),
-    parentId: ids.bob,
-    metadata: { name: "bob" },
-    id: ids.project,
-  });
+  // Replica 1 moves /root/a to /root/b
+  let repl1Ops = [r1.opMove(ids.a, "a", ids.b)];
+  // Replica 2 moves /root/a to /root/c
+  let repl2Ops = [r2.opMove(ids.a, "a", ids.c)];
 
-  const ops = [
-    (ids.forest, "root", ids.root),
-    (ids.forest, "trash", ids.trash),
-    (ids.root, "home", ids.home),
-    (ids.home, "bob", ids.bob),
-    (ids.bob, "project", ids.project),
-  ];
+  r1.applyOps(repl1Ops);
+  r1.applyOps(repl2Ops);
 
-  console.log(state);
-  state.tree.printNode(ids.root);
+  r2.applyOps(repl2Ops);
+  r2.applyOps(repl1Ops);
+
+  expect(r1.state).toEqual(r2.state);
+});
+
+test("concurrent moves avoid cycles, converging to a common location", () => {
+  const r1 = new TreeReplica("a");
+  const r2 = new TreeReplica("b");
+
+  const ids = {
+    root: newId(),
+    a: newId(),
+    b: newId(),
+    c: newId(),
+  };
+
+  const ops = r1.opMoves([
+    [ids.root, "root", "0" as Cuid],
+    [ids.a, "a", ids.root],
+    [ids.b, "b", ids.root],
+    [ids.c, "c", ids.a],
+  ]);
+
+  r1.applyOps(ops);
+  r2.applyOps(ops);
+
+  // Replica 1 moves /root/b to /root/a, creating /root/a/b
+  let repl1Ops = [r1.opMove(ids.b, "b", ids.a)];
+  // Replica 2 "simultaneously" moves /root/a to /root/b, creating /root/b/a
+  let repl2Ops = [r2.opMove(ids.a, "a", ids.b)];
+
+  r1.applyOps(repl1Ops);
+  r1.applyOps(repl2Ops);
+
+  r2.applyOps(repl2Ops);
+  r2.applyOps(repl1Ops);
+
+  expect(r1.state).toEqual(r2.state);
 });
