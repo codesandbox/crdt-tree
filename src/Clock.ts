@@ -14,12 +14,12 @@ export class Clock {
     this.counter = counter;
   }
 
-  /** Returns a new Clock with same actor but counter incremented by 1. */
+  /** Returns a new Clock with same actor but counter incremented by 1 */
   inc(): Clock {
     return new Clock(this.actorId, this.counter + 1);
   }
 
-  /** Increments the clock counter */
+  /** Increments the clock counter and returns a new Clock */
   tick(): Clock {
     this.counter += 1;
     return new Clock(this.actorId, this.counter);
@@ -43,24 +43,24 @@ export class Clock {
     return Ordering.Equal;
   }
 
-  /** Stringify the current clock into a comparable string */
-  toString(): string {
-    const paddedCounter = String(this.counter).padStart(15, "0");
-    return `${paddedCounter}:${this.actorId}`;
-  }
-
   /**
    * Used to retreive a value's primitive, used in comparisons
    * @example
    * const clock1 = new Clock('a');
    * const clock2 = new Clock('b');
    * clock1.tick();
-   * 
+   *
    * // returns true
    * console.log(clock1 > clock2);
    */
   valueOf(): string {
     return this.toString();
+  }
+
+  /** Stringify the current clock into a comparable string */
+  toString(): string {
+    const paddedCounter = String(this.counter).padStart(10, "0");
+    return `${paddedCounter}:${this.actorId}`;
   }
 
   /** Create a Clock from a previously stringified Clock */

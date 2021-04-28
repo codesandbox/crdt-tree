@@ -1,6 +1,6 @@
 import { Clock } from "../Clock"
 
-test('comparison', () => {
+test('valueOf comparison', () => {
   const clock1 = new Clock('a');
   const clock2 = new Clock('b');
 

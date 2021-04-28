@@ -67,6 +67,10 @@ export class TreeReplica {
     return opMoves;
   }
 
+  /**
+   * Applies a single operation to `State` and updates our clock
+   * Also records the latest timestamp for each replica.
+   */
   applyOp(op: OpMove) {
     this.time = this.time.merge(op.timestamp);
 
