@@ -1,7 +1,7 @@
 export enum Ordering {
   Equal,
   Greater,
-  Less,
+  Less
 }
 
 /** Implements a Lamport Clock */

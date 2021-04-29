@@ -11,14 +11,14 @@ test("concurrent moves converge to a common location", () => {
     root: newId(),
     a: newId(),
     b: newId(),
-    c: newId(),
+    c: newId()
   };
 
   const ops = r1.opMoves([
     [ids.root, "root", "0"],
     [ids.a, "a", ids.root],
     [ids.b, "b", ids.root],
-    [ids.c, "c", ids.root],
+    [ids.c, "c", ids.root]
   ]);
 
   r1.applyOps(ops);
@@ -49,14 +49,14 @@ test("concurrent moves avoid cycles, converging to a common location", () => {
     root: newId(),
     a: newId(),
     b: newId(),
-    c: newId(),
+    c: newId()
   };
 
   const ops = r1.opMoves([
     [ids.root, "root", "0"],
     [ids.a, "a", ids.root],
     [ids.b, "b", ids.root],
-    [ids.c, "c", ids.a],
+    [ids.c, "c", ids.a]
   ]);
 
   r1.applyOps(ops);
