@@ -18,9 +18,9 @@ export class TreeReplica<Id, Metadata> {
   /** The Tree state */
   state: State<Id, Metadata> = new State();
   /** The logical clock for this replica/tree  */
-  time: Clock;
+  time: Clock<Id>;
   /** Mapping of replicas and their latest time */
-  latestTimeByReplica: Map<Id, Clock> = new Map();
+  latestTimeByReplica: Map<Id, Clock<Id>> = new Map();
 
   constructor(authorId: Id) {
     this.time = new Clock(authorId);

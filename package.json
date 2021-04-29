@@ -1,5 +1,5 @@
 {
-  "name": "crdt-tree",
+  "name": "@codesandbox/crdt-tree",
   "author": "Matan Kushner",
   "version": "0.1.0",
   "license": "MIT",

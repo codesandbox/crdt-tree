@@ -53,7 +53,7 @@ import { Clock } from "./Clock";
 
 export interface OpMove<Id, Metadata> {
   id: Id;
-  timestamp: Clock;
+  timestamp: Clock<Id>;
   metadata: Metadata;
   parentId: Id;
 }
