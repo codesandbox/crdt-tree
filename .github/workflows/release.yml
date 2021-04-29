@@ -19,8 +19,13 @@ jobs:
       - name: Install dependencies
         run: yarn --frozen-lockfile
 
+      - name: Setup semantic-release
+        run: |
+          yarn global add semantic-release
+          echo "$(yarn global bin)" >> $GITHUB_PATH
+
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: yarn global add semantic-release && semantic-release
+        run: semantic-release
