@@ -50,12 +50,10 @@
 // [1] https://martin.kleppmann.com/papers/move-op.pdf
 
 import { Clock } from "./Clock";
-import { Cuid } from "./Tree";
-import { Metadata } from "./TreeNode";
 
-export interface OpMove {
-  id: Cuid;
+export interface OpMove<Id, Metadata> {
+  id: Id;
   timestamp: Clock;
   metadata: Metadata;
-  parentId: Cuid;
+  parentId: Id;
 }

@@ -19,14 +19,14 @@ import { OpMove } from "./OpMove";
 import { Tree } from "./Tree";
 import { TreeNode } from "./TreeNode";
 
-export class State {
+export class State<Id, Metadata> {
   /** A list of `LogOpMove` in descending timestamp order */
-  readonly operationLog: LogOpMove[] = [];
+  readonly operationLog: LogOpMove<Id, Metadata>[] = [];
   /** A tree structure that represents the current state of the tree */
-  tree: Tree = new Tree();
+  tree: Tree<Id, Metadata> = new Tree();
 
   /** Insert a log entry to the top of the log */
-  addLogEntry(entry: LogOpMove) {
+  addLogEntry(entry: LogOpMove<Id, Metadata>) {
     this.operationLog.unshift(entry);
   }
 
@@ -34,7 +34,7 @@ export class State {
    * Applies the given operation at the correct point in the order of events,
    * determined by the operation's logical timestamp.
    */
-  applyOp(op: OpMove) {
+  applyOp(op: OpMove<Id, Metadata>) {
     if (this.operationLog.length === 0) {
       let logEntry = this.doOperation(op);
       this.addLogEntry(logEntry);
@@ -64,14 +64,14 @@ export class State {
   }
 
   /** Apply a list of operations */
-  applyOps(ops: OpMove[]) {
+  applyOps(ops: OpMove<Id, Metadata>[]) {
     for (const op of ops) {
       this.applyOp(op);
     }
   }
 
   /** Perform the provided move operation, outputting the operation's log entry */
-  private doOperation(op: OpMove): LogOpMove {
+  private doOperation(op: OpMove<Id, Metadata>): LogOpMove<Id, Metadata> {
     // When a replica applies a `Move` op to its tree, it also records
     // a corresponding `LogMove` op in its log.  The t, p, m, and c
     // fields are taken directly from the `Move` record, while the `oldNode`
@@ -99,7 +99,7 @@ export class State {
   }
 
   /** Undo a previously made operation */
-  private undoOp(log: LogOpMove): void {
+  private undoOp(log: LogOpMove<Id, Metadata>): void {
     this.tree.remove(log.op.id);
     if (!log.oldNode) return;
 
@@ -111,7 +111,7 @@ export class State {
    * Reperforms an operation, recomputing the `LogOpMove` record due to the
    * effect of the new operation
    */
-  private redoOp(log: LogOpMove): void {
+  private redoOp(log: LogOpMove<Id, Metadata>): void {
     let op = log.op;
     let redoLog = this.doOperation(op);
     this.addLogEntry(redoLog);

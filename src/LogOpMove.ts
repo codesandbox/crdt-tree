@@ -26,12 +26,12 @@
 import { OpMove } from "./OpMove";
 import { TreeNode } from "./TreeNode";
 
-export interface LogOpMove {
+export interface LogOpMove<Id, Metadata> {
   /** The operation being logged */
-  op: OpMove;
+  op: OpMove<Id, Metadata>;
   /**
    * Parent and metadata prior to the application of the operation.
    * Is `undefined` if the node previously didn't exist in the tree.
    * */
-  oldNode?: TreeNode;
+  oldNode?: TreeNode<Id, Metadata>;
 }

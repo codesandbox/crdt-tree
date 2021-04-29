@@ -1,12 +1,11 @@
-import { Cuid } from "../Tree";
 import { TreeReplica } from "../TreeReplica";
 
 let id = 1;
-const newId = () => String(++id) as Cuid;
+const newId = () => String(++id);
 
 test("concurrent moves converge to a common location", () => {
-  const r1 = new TreeReplica("a");
-  const r2 = new TreeReplica("b");
+  const r1 = new TreeReplica<string, string>("a");
+  const r2 = new TreeReplica<string, string>("b");
 
   const ids = {
     root: newId(),
@@ -16,7 +15,7 @@ test("concurrent moves converge to a common location", () => {
   };
 
   const ops = r1.opMoves([
-    [ids.root, "root", "0" as Cuid],
+    [ids.root, "root", "0"],
     [ids.a, "a", ids.root],
     [ids.b, "b", ids.root],
     [ids.c, "c", ids.root],
@@ -54,7 +53,7 @@ test("concurrent moves avoid cycles, converging to a common location", () => {
   };
 
   const ops = r1.opMoves([
-    [ids.root, "root", "0" as Cuid],
+    [ids.root, "root", "0"],
     [ids.a, "a", ids.root],
     [ids.b, "b", ids.root],
     [ids.c, "c", ids.a],

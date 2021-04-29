@@ -23,21 +23,19 @@
 
 import { TreeNode } from "./TreeNode";
 
-export type Cuid = string & { __type: "cuid" };
-
 /** Create a new Tree instance */
-export class Tree {
+export class Tree<Id, Metadata> {
   /** Tree nodes indexed by id */
-  nodes: Map<Cuid, TreeNode> = new Map();
+  nodes: Map<Id, TreeNode<Id, Metadata>> = new Map();
   /** Parent id to child id index */
-  children: Map<Cuid, Set<Cuid>> = new Map();
+  children: Map<Id, Set<Id>> = new Map();
 
   get size(): number {
     return this.nodes.size;
   }
 
   /** Remove a node based on its id */
-  remove(id: Cuid): void {
+  remove(id: Id): void {
     const entry = this.nodes.get(id);
     if (!entry) return;
 
@@ -51,7 +49,7 @@ export class Tree {
   }
 
   /** Add a node to the tree */
-  addNode(id: Cuid, node: TreeNode): void {
+  addNode(id: Id, node: TreeNode<Id, Metadata>): void {
     let childrenSet = this.children.get(node.parentId);
     if (!childrenSet) {
       childrenSet = new Set();
@@ -63,7 +61,7 @@ export class Tree {
   }
 
   /** Get a node by its id */
-  get(id: Cuid): TreeNode | undefined {
+  get(id: Id): TreeNode<Id, Metadata> | undefined {
     return this.nodes.get(id);
   }
 
@@ -84,7 +82,7 @@ export class Tree {
   //
   // is 2 ancestor of 8?  yes.
   // is 2 ancestor of 5?   no.
-  isAncestor(id: Cuid, ancestorId: Cuid): boolean {
+  isAncestor(id: Id, ancestorId: Id): boolean {
     let targetId = id;
 
     let node;
@@ -97,7 +95,7 @@ export class Tree {
   }
 
   /** Print a tree node recursively */
-  printNode(id: Cuid, depth: number = 0) {
+  printNode(id: Id, depth: number = 0) {
     const node = this.get(id);
     const line = `${id} ${node ? `${JSON.stringify(node.metadata)}` : ""}`;
     const indentation = " ".repeat(depth * 2);
