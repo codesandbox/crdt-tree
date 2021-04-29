@@ -74,11 +74,11 @@ export class State {
   private doOperation(op: OpMove): LogOpMove {
     // When a replica applies a `Move` op to its tree, it also records
     // a corresponding `LogMove` op in its log.  The t, p, m, and c
-    // fields are taken directly from the `Move` record, while the `oldParent`
+    // fields are taken directly from the `Move` record, while the `oldNode`
     // field is filled in based on the state of the tree before the move.
-    // If c did not exist in the tree, `oldParent` is set to None.  Otherwise
-    // `oldParent` records the previous parent and metadata of c.
-    const oldParent = this.tree.get(op.id);
+    // If c did not exist in the tree, `oldNode` is set to None.  Otherwise
+    // `oldNode` records the previous parent and metadata of c.
+    const oldNode = this.tree.get(op.id);
 
     // ensures no cycles are introduced.  If the node c
     // is being moved, and c is an ancestor of the new parent
@@ -86,7 +86,7 @@ export class State {
     // is ignored.
     // Similarly, the operation is also ignored if c == newp
     if (op.id === op.parentId || this.tree.isAncestor(op.parentId, op.id)) {
-      return { op, oldParent };
+      return { op, oldNode };
     }
 
     // Otherwise, the tree is updated by removing c from
@@ -95,15 +95,15 @@ export class State {
     this.tree.remove(op.id);
     let node = new TreeNode(op.parentId, op.metadata);
     this.tree.addNode(op.id, node);
-    return { op, oldParent };
+    return { op, oldNode };
   }
 
   /** Undo a previously made operation */
   private undoOp(log: LogOpMove): void {
     this.tree.remove(log.op.id);
-    if (!log.oldParent) return;
+    if (!log.oldNode) return;
 
-    let node = new TreeNode(log.oldParent.parentId, log.oldParent.metadata);
+    let node = new TreeNode(log.oldNode.parentId, log.oldNode.metadata);
     this.tree.addNode(log.op.id, node);
   }
 
