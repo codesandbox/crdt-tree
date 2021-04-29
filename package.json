@@ -48,6 +48,11 @@
       "limit": "10 KB"
     }
   ],
+  "release": {
+    "branches": [
+      "main"
+    ]
+  },
   "husky": {
     "hooks": {
       "pre-commit": "tsdx lint --fix"
