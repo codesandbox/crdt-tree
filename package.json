@@ -1,5 +1,6 @@
 {
   "name": "@codesandbox/crdt-tree",
+  "description": "An accurate implementation of the tree CRDT algorithm described in \"A highly-available move operation for replicated trees and distributed filesystems\"",
   "author": "Matan Kushner",
   "version": "0.0.0-development",
   "license": "MIT",
