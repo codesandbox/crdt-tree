@@ -1,4 +1,4 @@
-import { Clock } from "../Clock";
+import { Clock } from "..";
 
 test("valueOf comparison", () => {
   const clock1 = new Clock("a");
