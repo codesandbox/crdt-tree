@@ -22,12 +22,11 @@ export class TreeReplica<Id, Metadata> {
   /** Mapping of replicas and their latest time */
   latestTimeByReplica: Map<Id, Clock<Id>> = new Map();
 
+  tree = this.state.tree;
+  get = this.tree.get;
+
   constructor(authorId: Id) {
     this.time = new Clock(authorId);
-  }
-
-  get tree() {
-    return this.state.tree;
   }
 
   /**
