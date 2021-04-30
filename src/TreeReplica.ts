@@ -21,8 +21,9 @@ export class TreeReplica<Id, Metadata> {
   time: Clock<Id>;
   /** Mapping of replicas and their latest time */
   latestTimeByReplica: Map<Id, Clock<Id>> = new Map();
-
+  /** A tree structure that represents the current state of the tree */
   tree = this.state.tree;
+  /** Get a node by its id */
   get = this.tree.get;
 
   constructor(authorId: Id) {
@@ -56,7 +57,7 @@ export class TreeReplica<Id, Metadata> {
         timestamp: this.time.tick(),
         id: op[0],
         metadata: op[1],
-        parentId: op[2]
+        parentId: op[2],
       });
     }
     return opMoves;
