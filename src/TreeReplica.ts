@@ -57,7 +57,7 @@ export class TreeReplica<Id, Metadata> {
         timestamp: this.time.tick(),
         id: op[0],
         metadata: op[1],
-        parentId: op[2],
+        parentId: op[2]
       });
     }
     return opMoves;
