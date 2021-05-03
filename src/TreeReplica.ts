@@ -23,11 +23,14 @@ export class TreeReplica<Id, Metadata> {
   latestTimeByReplica: Map<Id, Clock<Id>> = new Map();
   /** A tree structure that represents the current state of the tree */
   tree = this.state.tree;
-  /** Get a node by its id */
-  get = this.tree.get;
 
   constructor(authorId: Id) {
     this.time = new Clock(authorId);
+  }
+
+  /** Get a node by its id */
+  get(id: Id) {
+    this.tree.get(id);
   }
 
   /**
