@@ -13,6 +13,7 @@
 import { Clock } from "./Clock";
 import { OpMove } from "./OpMove";
 import { State } from "./State";
+import { TreeNode } from "./TreeNode";
 
 export class TreeReplica<Id, Metadata> {
   /** The Tree state */
@@ -29,8 +30,8 @@ export class TreeReplica<Id, Metadata> {
   }
 
   /** Get a node by its id */
-  get(id: Id) {
-    this.tree.get(id);
+  get(id: Id): TreeNode<Id, Metadata> | undefined {
+    return this.tree.get(id);
   }
 
   /**
