@@ -30,9 +30,7 @@ export class Tree<Id, Metadata> {
   /** Parent id to child id index */
   children: Map<Id, Set<Id>> = new Map();
 
-  get size(): number {
-    return this.nodes.size;
-  }
+  size = this.nodes.size;
 
   /** Remove a node based on its id */
   remove(id: Id): void {
