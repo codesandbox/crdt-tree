@@ -41,17 +41,17 @@ export class TreeReplica<Id, Metadata> {
    * Therefore, multiple ops generate3d with this method may share the same
    * timestamp, and only one can be successfully applied.
    *
-   * To generate multiple ops before calling ::apply_op(), use ::opmoves() instead.
+   * To generate multiple ops before calling `applyOp`, use `opMoves` instead.
    */
   opMove(id: Id, metadata: Metadata, parentId: Id): OpMove<Id, Metadata> {
     return { timestamp: this.time.inc(), metadata, id, parentId };
   }
 
   /**
-   * Generates a list of OpMove from a list of tuples (id, metadata, parent_id)
+   * Generates a list of OpMove from a list of tuples (id, metadata, parentId)
    *
    * Each timestamp will be greater than the previous op in the returned list.
-   * Therefore, these operations can be successfully applied via `apply_op()` without
+   * Therefore, these operations can be successfully applied via `applyOp()` without
    * timestamp collision.
    */
   opMoves(ops: Array<[Id, Metadata, Id]>): OpMove<Id, Metadata>[] {

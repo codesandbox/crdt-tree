@@ -1,7 +1,7 @@
 // Implements `OpMove`, the only way to manipulate tree data.
 //
-// `OpMove` are applied via `State`::apply_op() or at a higher
-// level via `TreeReplica`::apply_op()
+// `OpMove` are applied via `State.applyOp` or at a higher
+// level via `TreeReplica.applyOp`
 //
 // From the paper[1]:
 // ----
