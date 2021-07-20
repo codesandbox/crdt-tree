@@ -78,7 +78,7 @@ export class TreeReplica<Id, Metadata> {
     const latestTimeOfActor = this.latestTimeByReplica.get(id) ?? 0;
     if (op.timestamp <= latestTimeOfActor) {
       console.log(
-        `Clock not increased, current timestamp ${latestTimeOfActor}, provided is ${op.timestamp}.`
+        `Clock not increased, current timestamp ${latestTimeOfActor.toString()}, provided is ${op.timestamp.toString()}.`
       );
       console.log("Dropping operation.");
     } else {
