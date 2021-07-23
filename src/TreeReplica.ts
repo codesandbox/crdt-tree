@@ -13,20 +13,37 @@
 import { Clock } from "./Clock";
 import { OpMove } from "./OpMove";
 import { State } from "./State";
+import { Tree } from "./Tree";
 import { TreeNode } from "./TreeNode";
+
+interface ReplicaOptions<Id, Metadata> {
+  /**
+   * An function to provide domain-specific conflict handling logic.
+   * The resulting boolean value determines whether the operation conflicts.
+   *
+   * This is useful if metadata collision can produce conflicts in your business
+   * logic. For example, making name collisions impossible in a filesystem.
+   */
+  conflictHandler?: (
+    operation: OpMove<Id, Metadata>,
+    tree: Tree<Id, Metadata>
+  ) => boolean;
+}
 
 export class TreeReplica<Id, Metadata> {
   /** The Tree state */
-  state: State<Id, Metadata> = new State();
+  state: State<Id, Metadata>;
   /** The logical clock for this replica/tree  */
   time: Clock<Id>;
   /** Mapping of replicas and their latest time */
   latestTimeByReplica: Map<Id, Clock<Id>> = new Map();
   /** A tree structure that represents the current state of the tree */
-  tree = this.state.tree;
+  tree: Tree<Id, Metadata>;
 
-  constructor(authorId: Id) {
+  constructor(authorId: Id, options: ReplicaOptions<Id, Metadata> = {}) {
     this.time = new Clock(authorId);
+    this.state = new State(options);
+    this.tree = this.state.tree;
   }
 
   /** Get a node by its id */

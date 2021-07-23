@@ -19,11 +19,35 @@ import { OpMove } from "./OpMove";
 import { Tree } from "./Tree";
 import { TreeNode } from "./TreeNode";
 
+interface StateOptions<Id, Metadata> {
+  /**
+   * An function to provide domain-specific conflict handling logic.
+   * The resulting boolean value determines whether the operation conflicts.
+   *
+   * This is useful if metadata collision can produce conflicts in your business
+   * logic. For example, making name collisions impossible in a filesystem.
+   */
+  conflictHandler?: (
+    operation: OpMove<Id, Metadata>,
+    tree: Tree<Id, Metadata>
+  ) => boolean;
+}
+
 export class State<Id, Metadata> {
   /** A list of `LogOpMove` in descending timestamp order */
   readonly operationLog: LogOpMove<Id, Metadata>[] = [];
   /** A tree structure that represents the current state of the tree */
   tree: Tree<Id, Metadata> = new Tree();
+  /** Returns true if the given operation should be discarded */
+  conflictHandler: (
+    operation: OpMove<Id, Metadata>,
+    tree: Tree<Id, Metadata>
+  ) => boolean;
+
+  constructor(options: StateOptions<Id, Metadata> = {}) {
+    // Default to not handling conflict
+    this.conflictHandler = options.conflictHandler ?? (() => false);
+  }
 
   /** Insert a log entry to the top of the log */
   addLogEntry(entry: LogOpMove<Id, Metadata>) {
@@ -80,12 +104,18 @@ export class State<Id, Metadata> {
     // `oldNode` records the previous parent and metadata of c.
     const oldNode = this.tree.get(op.id);
 
-    // ensures no cycles are introduced.  If the node c
+    // ensures no cycles are introduced. If the node c
     // is being moved, and c is an ancestor of the new parent
     // newp, then the tree is returned unmodified, ie the operation
     // is ignored.
     // Similarly, the operation is also ignored if c == newp
     if (op.id === op.parentId || this.tree.isAncestor(op.parentId, op.id)) {
+      return { op, oldNode };
+    }
+
+    // ignores operations that produce conflicts according to the
+    // custom conflict handler.
+    if (this.conflictHandler(op, this.tree)) {
       return { op, oldNode };
     }
 
