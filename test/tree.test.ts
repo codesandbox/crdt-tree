@@ -1,4 +1,4 @@
-import { TreeReplica } from "../src";
+import { OpMove, Tree, TreeReplica } from "../src";
 
 let id = 1;
 const newId = () => String(++id);
@@ -37,7 +37,7 @@ test("concurrent moves converge to a common location", () => {
 
   // The state is the same on both replicas, converging to /root/c/a
   // because last-write-wins and replica2's op has a later timestamp
-  expect(r1.state).toEqual(r2.state);
+  expect(r1.state.toString()).toEqual(r2.state.toString());
   expect(r1.state.tree.nodes.get(ids.a)?.parentId).toBe(ids.c);
 });
 
@@ -75,7 +75,51 @@ test("concurrent moves avoid cycles, converging to a common location", () => {
 
   // The state is the same on both replicas, converging to /root/a/b
   // because last-write-wins and replica2's op has a later timestamp
-  expect(r1.state).toEqual(r2.state);
+  expect(r1.state.toString()).toEqual(r2.state.toString());
   expect(r1.state.tree.nodes.get(ids.b)?.parentId).toBe(ids.a);
   expect(r1.state.tree.nodes.get(ids.a)?.parentId).toBe(ids.root);
+});
+
+test("custom conflict handler supports metadata-based custom conflicts", () => {
+  type Id = string;
+  type FileName = string;
+
+  // A custom handler that rejects if a sibling exists with the same name
+  function conflictHandler(op: OpMove<Id, FileName>, tree: Tree<Id, FileName>) {
+    const siblings = tree.children.get(op.parentId) ?? [];
+    return [...siblings].some(id => {
+      const isSibling = id !== op.id;
+      const hasSameName = tree.get(id)?.metadata === op.metadata;
+      return isSibling && hasSameName;
+    });
+  }
+
+  const r1 = new TreeReplica<Id, FileName>("a", { conflictHandler });
+  const r2 = new TreeReplica<Id, FileName>("b", { conflictHandler });
+
+  const ids = {
+    root: newId(),
+    a: newId(),
+    b: newId()
+  };
+
+  const ops = r1.opMoves([
+    [ids.root, "root", "0"],
+    [ids.a, "a", ids.root],
+    [ids.b, "b", ids.root]
+  ]);
+
+  r1.applyOps(ops);
+  r2.applyOps(ops);
+
+  // Replica 1 renames /root/a to /root/b, producing a conflict
+  let repl1Ops = [r1.opMove(ids.a, "b", ids.root)];
+
+  r1.applyOps(repl1Ops);
+  r2.applyOps(repl1Ops);
+
+  // The state is the same on both replicas, ignoring the operation that
+  // produced conflicting metadata state
+  expect(r1.state.toString()).toEqual(r2.state.toString());
+  expect(r1.state.tree.nodes.get(ids.a)?.metadata).toBe("a");
 });
