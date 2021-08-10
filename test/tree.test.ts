@@ -29,6 +29,11 @@ test("concurrent moves converge to a common location", () => {
   // Replica 2 moves /root/a to /root/c
   let repl2Ops = [r2.opMove(ids.a, "a", ids.c)];
 
+  const r1EventHandler = jest.fn();
+  const r2EventHandler = jest.fn();
+  r1.state.emitter.on("intermediaryOp", r1EventHandler);
+  r2.state.emitter.on("intermediaryOp", r2EventHandler);
+
   r1.applyOps(repl1Ops);
   r1.applyOps(repl2Ops);
 
@@ -39,6 +44,24 @@ test("concurrent moves converge to a common location", () => {
   // because last-write-wins and replica2's op has a later timestamp
   expect(r1.state.toString()).toEqual(r2.state.toString());
   expect(r1.state.tree.nodes.get(ids.a)?.parentId).toBe(ids.c);
+
+  // The events emitted can be replicated by an external form of state management
+  expect(r1EventHandler.mock.calls).toEqual([
+    // Move /root/a to /root/b
+    [{ id: ids.a, metadata: "a", parentId: ids.b }],
+    // Move /root/a to /root/c
+    [{ id: ids.a, metadata: "a", parentId: ids.c }]
+  ]);
+  expect(r2EventHandler.mock.calls).toEqual([
+    // Move /root/a to /root/c
+    [{ id: ids.a, metadata: "a", parentId: ids.c }],
+    // [Undo] Move /root/a back to /root
+    [{ id: ids.a, metadata: "a", parentId: ids.root }],
+    // Move /root/a to /root/b
+    [{ id: ids.a, metadata: "a", parentId: ids.b }],
+    // Move /root/a to /root/c
+    [{ id: ids.a, metadata: "a", parentId: ids.c }]
+  ]);
 });
 
 test("concurrent moves avoid cycles, converging to a common location", () => {
@@ -62,6 +85,11 @@ test("concurrent moves avoid cycles, converging to a common location", () => {
   r1.applyOps(ops);
   r2.applyOps(ops);
 
+  const r1EventHandler = jest.fn();
+  const r2EventHandler = jest.fn();
+  r1.state.emitter.on("intermediaryOp", r1EventHandler);
+  r2.state.emitter.on("intermediaryOp", r2EventHandler);
+
   // Replica 1 moves /root/b to /root/a, creating /root/a/b
   let repl1Ops = [r1.opMove(ids.b, "b", ids.a)];
   // Replica 2 "simultaneously" moves /root/a to /root/b, creating /root/b/a
@@ -78,6 +106,20 @@ test("concurrent moves avoid cycles, converging to a common location", () => {
   expect(r1.state.toString()).toEqual(r2.state.toString());
   expect(r1.state.tree.nodes.get(ids.b)?.parentId).toBe(ids.a);
   expect(r1.state.tree.nodes.get(ids.a)?.parentId).toBe(ids.root);
+
+  // The events emitted can be replicated by an external form of state management
+  expect(r1EventHandler.mock.calls).toEqual([
+    // Move /root/b to /root/a/b
+    [{ id: ids.b, metadata: "b", parentId: ids.a }]
+  ]);
+  expect(r2EventHandler.mock.calls).toEqual([
+    // Move /root/a to /root/b
+    [{ id: ids.a, metadata: "a", parentId: ids.b }],
+    // [Undo] Move /root/a back to /root
+    [{ id: ids.a, metadata: "a", parentId: ids.root }],
+    // Move /root/b to /root/a
+    [{ id: ids.b, metadata: "b", parentId: ids.a }]
+  ]);
 });
 
 test("custom conflict handler supports metadata-based custom conflicts", () => {
