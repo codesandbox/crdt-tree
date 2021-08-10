@@ -47,19 +47,19 @@ test("concurrent moves converge to a common location", () => {
 
   // The events emitted can be replicated by an external form of state management
   expect(r1EventHandler.mock.calls).toEqual([
-    // Move /root/a to /root/b
+    // Move /root/a to /root/b/a
     [{ id: ids.a, metadata: "a", parentId: ids.b }],
-    // Move /root/a to /root/c
+    // Move /root/b/a to /root/c/a
     [{ id: ids.a, metadata: "a", parentId: ids.c }]
   ]);
   expect(r2EventHandler.mock.calls).toEqual([
-    // Move /root/a to /root/c
+    // Move /root/a to /root/c/a
     [{ id: ids.a, metadata: "a", parentId: ids.c }],
-    // [Undo] Move /root/a back to /root
+    // [Undo] Move /root/c/a back to /root/a
     [{ id: ids.a, metadata: "a", parentId: ids.root }],
-    // Move /root/a to /root/b
+    // Move /root/a to /root/b/a
     [{ id: ids.a, metadata: "a", parentId: ids.b }],
-    // Move /root/a to /root/c
+    // Move /root/b/a to /root/c/a
     [{ id: ids.a, metadata: "a", parentId: ids.c }]
   ]);
 });
@@ -113,11 +113,11 @@ test("concurrent moves avoid cycles, converging to a common location", () => {
     [{ id: ids.b, metadata: "b", parentId: ids.a }]
   ]);
   expect(r2EventHandler.mock.calls).toEqual([
-    // Move /root/a to /root/b
+    // Move /root/a to /root/b/a
     [{ id: ids.a, metadata: "a", parentId: ids.b }],
-    // [Undo] Move /root/a back to /root
+    // [Undo] Move /root/b/a back to /root/a
     [{ id: ids.a, metadata: "a", parentId: ids.root }],
-    // Move /root/b to /root/a
+    // Move /root/b to /root/a/b
     [{ id: ids.b, metadata: "b", parentId: ids.a }]
   ]);
 });
