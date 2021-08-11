@@ -15,11 +15,11 @@
     "node": ">=10"
   },
   "scripts": {
+    "prepare": "husky install",
     "start": "tsdx watch",
     "build": "tsdx build",
     "test": "tsdx test",
     "lint": "tsdx lint",
-    "prepare": "tsdx build",
     "size": "size-limit",
     "analyze": "size-limit --why"
   },

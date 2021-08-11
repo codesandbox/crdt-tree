@@ -11,13 +11,13 @@ test("concurrent moves converge to a common location", () => {
     root: "0",
     a: newId(),
     b: newId(),
-    c: newId(),
+    c: newId()
   };
 
   const ops = r1.opMoves([
     [ids.a, "a", ids.root],
     [ids.b, "b", ids.root],
-    [ids.c, "c", ids.root],
+    [ids.c, "c", ids.root]
   ]);
 
   r1.applyOps(ops);
@@ -51,17 +51,17 @@ test("concurrent moves converge to a common location", () => {
       {
         id: ids.a,
         metadata: "a",
-        parent: { id: ids.b, metadata: "b", parent: { id: ids.root } },
-      },
+        parent: { id: ids.b, metadata: "b", parent: { id: ids.root } }
+      }
     ],
     // Move /root/b/a to /root/c/a
     [
       {
         id: ids.a,
         metadata: "a",
-        parent: { id: ids.c, metadata: "c", parent: { id: ids.root } },
-      },
-    ],
+        parent: { id: ids.c, metadata: "c", parent: { id: ids.root } }
+      }
+    ]
   ]);
   expect(r2EventHandler.mock.calls).toEqual([
     // Move /root/a to /root/c/a
@@ -69,8 +69,8 @@ test("concurrent moves converge to a common location", () => {
       {
         id: ids.a,
         metadata: "a",
-        parent: { id: ids.c, metadata: "c", parent: { id: ids.root } },
-      },
+        parent: { id: ids.c, metadata: "c", parent: { id: ids.root } }
+      }
     ],
     // [Undo] Move /root/c/a back to /root/a
     [{ id: ids.a, metadata: "a", parent: { id: ids.root } }],
@@ -79,17 +79,17 @@ test("concurrent moves converge to a common location", () => {
       {
         id: ids.a,
         metadata: "a",
-        parent: { id: ids.b, metadata: "b", parent: { id: ids.root } },
-      },
+        parent: { id: ids.b, metadata: "b", parent: { id: ids.root } }
+      }
     ],
     // Move /root/b/a to /root/c/a
     [
       {
         id: ids.a,
         metadata: "a",
-        parent: { id: ids.c, metadata: "c", parent: { id: ids.root } },
-      },
-    ],
+        parent: { id: ids.c, metadata: "c", parent: { id: ids.root } }
+      }
+    ]
   ]);
 });
 
@@ -101,13 +101,13 @@ test("concurrent moves avoid cycles, converging to a common location", () => {
     root: "0",
     a: newId(),
     b: newId(),
-    c: newId(),
+    c: newId()
   };
 
   const ops = r1.opMoves([
     [ids.a, "a", ids.root],
     [ids.b, "b", ids.root],
-    [ids.c, "c", ids.a],
+    [ids.c, "c", ids.a]
   ]);
 
   r1.applyOps(ops);
@@ -142,9 +142,9 @@ test("concurrent moves avoid cycles, converging to a common location", () => {
       {
         id: ids.b,
         metadata: "b",
-        parent: { id: ids.a, metadata: "a", parent: { id: ids.root } },
-      },
-    ],
+        parent: { id: ids.a, metadata: "a", parent: { id: ids.root } }
+      }
+    ]
   ]);
   expect(r2EventHandler.mock.calls).toEqual([
     // Move /root/a to /root/b/a
@@ -152,8 +152,8 @@ test("concurrent moves avoid cycles, converging to a common location", () => {
       {
         id: ids.a,
         metadata: "a",
-        parent: { id: ids.b, metadata: "b", parent: { id: ids.root } },
-      },
+        parent: { id: ids.b, metadata: "b", parent: { id: ids.root } }
+      }
     ],
     // [Undo] Move /root/b/a back to /root/a
     [{ id: ids.a, metadata: "a", parent: { id: ids.root } }],
@@ -162,9 +162,9 @@ test("concurrent moves avoid cycles, converging to a common location", () => {
       {
         id: ids.b,
         metadata: "b",
-        parent: { id: ids.a, metadata: "a", parent: { id: ids.root } },
-      },
-    ],
+        parent: { id: ids.a, metadata: "a", parent: { id: ids.root } }
+      }
+    ]
   ]);
 });
 
@@ -175,7 +175,7 @@ test("custom conflict handler supports metadata-based custom conflicts", () => {
   // A custom handler that rejects if a sibling exists with the same name
   function conflictHandler(op: OpMove<Id, FileName>, tree: Tree<Id, FileName>) {
     const siblings = tree.children.get(op.parentId) ?? [];
-    return [...siblings].some((id) => {
+    return [...siblings].some(id => {
       const isSibling = id !== op.id;
       const hasSameName = tree.get(id)?.metadata === op.metadata;
       return isSibling && hasSameName;
@@ -188,13 +188,13 @@ test("custom conflict handler supports metadata-based custom conflicts", () => {
   const ids = {
     root: newId(),
     a: newId(),
-    b: newId(),
+    b: newId()
   };
 
   const ops = r1.opMoves([
     [ids.root, "root", "0"],
     [ids.a, "a", ids.root],
-    [ids.b, "b", ids.root],
+    [ids.b, "b", ids.root]
   ]);
 
   r1.applyOps(ops);

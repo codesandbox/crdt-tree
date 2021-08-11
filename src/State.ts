@@ -152,7 +152,7 @@ export class State<Id, Metadata> {
     this.emitter.emit("intermediaryOp", {
       id: op.id,
       metadata: op.metadata,
-      parent: this.flattenTree(op.parentId, this.tree),
+      parent: this.flattenTree(op.parentId, this.tree)
     });
     return { op, oldNode };
   }
@@ -168,7 +168,7 @@ export class State<Id, Metadata> {
     this.emitter.emit("intermediaryOp", {
       id: log.op.id,
       metadata: log.op.metadata,
-      parent: log.oldNode && this.flattenTree(log.oldNode?.parentId, this.tree),
+      parent: log.oldNode && this.flattenTree(log.oldNode?.parentId, this.tree)
     });
   }
 
@@ -194,7 +194,7 @@ export class State<Id, Metadata> {
     return {
       id: parentId,
       metadata: tree.get(parentId)?.metadata,
-      parent: ancestorId && this.flattenTree(ancestorId, tree),
+      parent: ancestorId && this.flattenTree(ancestorId, tree)
     };
   }
 }
