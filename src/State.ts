@@ -30,8 +30,14 @@ type Events<Id, Metadata> = {
   intermediaryOp: {
     id: Id;
     metadata: Metadata;
-    parentId?: Id;
+    parent?: Parent<Id, Metadata>;
   };
+};
+
+type Parent<Id, Metadata> = {
+  id: Id;
+  metadata?: Metadata;
+  parent?: Parent<Id, Metadata>;
 };
 
 interface StateOptions<Id, Metadata> {
@@ -146,7 +152,7 @@ export class State<Id, Metadata> {
     this.emitter.emit("intermediaryOp", {
       id: op.id,
       metadata: op.metadata,
-      parentId: op.parentId
+      parent: this.flattenTree(op.parentId, this.tree),
     });
     return { op, oldNode };
   }
@@ -162,7 +168,7 @@ export class State<Id, Metadata> {
     this.emitter.emit("intermediaryOp", {
       id: log.op.id,
       metadata: log.op.metadata,
-      parentId: log.oldNode?.parentId
+      parent: log.oldNode && this.flattenTree(log.oldNode?.parentId, this.tree),
     });
   }
 
@@ -174,5 +180,21 @@ export class State<Id, Metadata> {
     let op = log.op;
     let redoLog = this.doOperation(op);
     this.addLogEntry(redoLog);
+  }
+
+  /**
+   * Produces a flattened tree of ancestors used by `intermediaryOp` for operations
+   * that may require a snapshot of the state of the entry's ancestors.
+   * */
+  private flattenTree(
+    parentId: Id,
+    tree: Tree<Id, Metadata>
+  ): Parent<Id, Metadata> {
+    const ancestorId = tree.get(parentId)?.parentId;
+    return {
+      id: parentId,
+      metadata: tree.get(parentId)?.metadata,
+      parent: ancestorId && this.flattenTree(ancestorId, tree),
+    };
   }
 }
