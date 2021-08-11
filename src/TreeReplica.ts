@@ -10,9 +10,10 @@
 // `State` is a lower-level interface to the Tree CRDT and is not tied to any
 // actor/peer.
 
+import { Emitter } from "mitt";
 import { Clock } from "./Clock";
 import { OpMove } from "./OpMove";
-import { State } from "./State";
+import { Events, State } from "./State";
 import { Tree } from "./Tree";
 import { TreeNode } from "./TreeNode";
 
@@ -39,11 +40,15 @@ export class TreeReplica<Id, Metadata> {
   latestTimeByReplica: Map<Id, Clock<Id>> = new Map();
   /** A tree structure that represents the current state of the tree */
   tree: Tree<Id, Metadata>;
+  /** An event emitter for updates to the state of the tree */
+  emitter: Emitter<Events<Id, Metadata>>;
 
   constructor(authorId: Id, options: ReplicaOptions<Id, Metadata> = {}) {
     this.time = new Clock(authorId);
     this.state = new State(options);
+
     this.tree = this.state.tree;
+    this.emitter = this.state.emitter;
   }
 
   /** Get a node by its id */

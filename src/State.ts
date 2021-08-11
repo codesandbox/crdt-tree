@@ -20,7 +20,7 @@ import { Tree } from "./Tree";
 import { TreeNode } from "./TreeNode";
 import mitt from "mitt";
 
-type Events<Id, Metadata> = {
+export type Events<Id, Metadata> = {
   /**
    * Intermediary operations made when reordering events based on timestamps.
    *
@@ -34,7 +34,7 @@ type Events<Id, Metadata> = {
   };
 };
 
-type Parent<Id, Metadata> = {
+export type Parent<Id, Metadata> = {
   id: Id;
   metadata?: Metadata;
   parent?: Parent<Id, Metadata>;
