@@ -27,11 +27,13 @@ export type Events<Id, Metadata> = {
    * This is useful when mirroring the state of `crdt-tree` to another
    * stateful representation.
    * */
-  intermediaryOp: {
-    id: Id;
-    metadata: Metadata;
-    parent?: Parent<Id, Metadata>;
-  };
+  intermediaryOp: IntermediaryOp<Id, Metadata>;
+};
+
+export type IntermediaryOp<Id, Metadata> = {
+  id: Id;
+  metadata: Metadata;
+  parent?: Parent<Id, Metadata>;
 };
 
 export type Parent<Id, Metadata> = {
@@ -152,7 +154,7 @@ export class State<Id, Metadata> {
     this.emitter.emit("intermediaryOp", {
       id: op.id,
       metadata: op.metadata,
-      parent: this.flattenTree(op.parentId, this.tree)
+      parent: this.flattenTree(op.parentId, this.tree),
     });
     return { op, oldNode };
   }
@@ -168,7 +170,7 @@ export class State<Id, Metadata> {
     this.emitter.emit("intermediaryOp", {
       id: log.op.id,
       metadata: log.op.metadata,
-      parent: log.oldNode && this.flattenTree(log.oldNode?.parentId, this.tree)
+      parent: log.oldNode && this.flattenTree(log.oldNode?.parentId, this.tree),
     });
   }
 
@@ -194,7 +196,7 @@ export class State<Id, Metadata> {
     return {
       id: parentId,
       metadata: tree.get(parentId)?.metadata,
-      parent: ancestorId && this.flattenTree(ancestorId, tree)
+      parent: ancestorId && this.flattenTree(ancestorId, tree),
     };
   }
 }
