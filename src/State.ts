@@ -18,6 +18,27 @@ import { LogOpMove } from "./LogOpMove";
 import { OpMove } from "./OpMove";
 import { Tree } from "./Tree";
 import { TreeNode } from "./TreeNode";
+import mitt from "mitt";
+
+type Events<Id, Metadata> = {
+  /**
+   * Intermediary operations made when reordering events based on timestamps.
+   *
+   * This is useful when mirroring the state of `crdt-tree` to another
+   * stateful representation.
+   * */
+  intermediaryOp: {
+    id: Id;
+    metadata: Metadata;
+    parent?: Parent<Id, Metadata>;
+  };
+};
+
+type Parent<Id, Metadata> = {
+  id: Id;
+  metadata?: Metadata;
+  parent?: Parent<Id, Metadata>;
+};
 
 interface StateOptions<Id, Metadata> {
   /**
@@ -38,6 +59,8 @@ export class State<Id, Metadata> {
   readonly operationLog: LogOpMove<Id, Metadata>[] = [];
   /** A tree structure that represents the current state of the tree */
   tree: Tree<Id, Metadata> = new Tree();
+  /** An event emitter for updates to the state of the tree */
+  emitter = mitt<Events<Id, Metadata>>();
   /** Returns true if the given operation should be discarded */
   conflictHandler: (
     operation: OpMove<Id, Metadata>,
@@ -125,6 +148,12 @@ export class State<Id, Metadata> {
     this.tree.remove(op.id);
     let node = new TreeNode(op.parentId, op.metadata);
     this.tree.addNode(op.id, node);
+
+    this.emitter.emit("intermediaryOp", {
+      id: op.id,
+      metadata: op.metadata,
+      parent: this.flattenTree(op.parentId, this.tree)
+    });
     return { op, oldNode };
   }
 
@@ -135,6 +164,12 @@ export class State<Id, Metadata> {
 
     let node = new TreeNode(log.oldNode.parentId, log.oldNode.metadata);
     this.tree.addNode(log.op.id, node);
+
+    this.emitter.emit("intermediaryOp", {
+      id: log.op.id,
+      metadata: log.op.metadata,
+      parent: log.oldNode && this.flattenTree(log.oldNode?.parentId, this.tree)
+    });
   }
 
   /**
@@ -145,5 +180,21 @@ export class State<Id, Metadata> {
     let op = log.op;
     let redoLog = this.doOperation(op);
     this.addLogEntry(redoLog);
+  }
+
+  /**
+   * Produces a flattened tree of ancestors used by `intermediaryOp` for operations
+   * that may require a snapshot of the state of the entry's ancestors.
+   * */
+  private flattenTree(
+    parentId: Id,
+    tree: Tree<Id, Metadata>
+  ): Parent<Id, Metadata> {
+    const ancestorId = tree.get(parentId)?.parentId;
+    return {
+      id: parentId,
+      metadata: tree.get(parentId)?.metadata,
+      parent: ancestorId && this.flattenTree(ancestorId, tree)
+    };
   }
 }

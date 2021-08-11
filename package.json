@@ -15,19 +15,19 @@
     "node": ">=10"
   },
   "scripts": {
+    "prepare": "husky install",
     "start": "tsdx watch",
     "build": "tsdx build",
     "test": "tsdx test",
     "lint": "tsdx lint",
-    "prepare": "tsdx build",
     "size": "size-limit",
     "analyze": "size-limit --why"
   },
   "devDependencies": {
     "@size-limit/preset-small-lib": "^4.10.2",
+    "@weiran.zsd/tsdx": "^0.15.0",
     "husky": "^6.0.0",
     "size-limit": "^4.10.2",
-    "@weiran.zsd/tsdx": "^0.15.0",
     "tslib": "^2.2.0",
     "typescript": "^4.2.4"
   },
@@ -50,5 +50,8 @@
     "hooks": {
       "pre-commit": "tsdx lint --fix"
     }
+  },
+  "dependencies": {
+    "mitt": "^3.0.0"
   }
 }
