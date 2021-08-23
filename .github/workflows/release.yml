@@ -34,6 +34,5 @@ jobs:
       - name: Release (GitHub Package Registry)
         env:
           NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "{\"publishConfig\":{\"registry\":\"https://npm.pkg.github.com\"}}" >> .npmrc
-          semantic-release --plugins=@semantic-release/npm
+          NPM_CONFIG_REGISTRY: https://npm.pkg.github.com/
+        run: semantic-release --plugins=@semantic-release/npm
